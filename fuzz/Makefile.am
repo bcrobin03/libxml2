@@ -153,6 +153,12 @@ fuzz-lint: lint$(EXEEXT) seed/lint.stamp
 	    -max_len=$(XML_MAX_LEN) \
 	    $$XML_FUZZ_OPTIONS \
 	    corpus/lint seed/lint
+# xmlIO-uri fuzzer
+
+seed/xmlio_uri.stamp:
+	@mkdir -p corpus/xmlio_uri
+	echo -n "custom://test.xml" > seed/xmlio_uri/uri_seed_1
+	touch $@
 
 # API fuzzer
 
