@@ -59,4 +59,15 @@ do
     fi
 done
 
+# Build custom fuzz.c harness into a standalone fuzzer binary
+$CC $CFLAGS -I. -I.. -I$SRC/libxml2/include \
+    ../fuzz.c -c -o fuzz_custom.o
+
+$CXX $CXXFLAGS \
+    fuzz_custom.o fuzz.o \
+    -o $OUT/fuzz_custom \
+    $LIB_FUZZING_ENGINE \
+    ../.libs/libxml2.a -Wl,-Bstatic -lz -llzma -Wl,-Bdynamic
+
+
 cp *.dict *.options $OUT/
