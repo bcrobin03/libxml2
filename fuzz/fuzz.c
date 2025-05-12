@@ -14,6 +14,11 @@
 #include <libxml/parserInternals.h>
 #include <libxml/tree.h>
 #include <libxml/xmlIO.h>
+
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+
 #include "fuzz.h"
 
 typedef struct {
@@ -599,5 +604,55 @@ xmlFuzzMutateChunks(const xmlFuzzChunkDesc *chunks,
     }
 
     return ret;
+}
+
+//Improving code coverage for xmlParserInputBufferCreateUrl
+// This is a simple fuzzer for the xmlParserInputBufferCreateUrl function
+// in libxml2. It uses a custom input handler to simulate different
+// scenarios, including a broken handler that returns NULL from
+// opencallback, which causes the function to fail. The fuzzer
+// generates random input data and tests the function with it.
+
+// Custom input handler that always matches
+int myMatch(const char *URI) {
+    return 1;  // Always accept the URI
+}
+
+// Simulate broken handler: opencallback returns NULL
+void *myOpen(const char *URI) {
+    return NULL;  // Causes buf->context to be NULL
+}
+
+int myRead(void *ctx, char *buf, int len) {
+    return -1;  // Nothing to read
+}
+
+int myClose(void *ctx) {
+    return 0;
+}
+
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+    if (size == 0 || data[size - 1] != '\0') {
+        // Ensure null-terminated string for URI
+        return 0;
+    }
+
+    // Register our custom handler (no-op if already registered)
+    static int initialized = 0;
+    if (!initialized) {
+        xmlRegisterInputCallbacks(myMatch, myOpen, myRead, myClose);
+        initialized = 1;
+    }
+
+    // Call the target function with the fuzzed URI
+    xmlParserInputBufferPtr out = NULL;
+    xmlParserInputBufferCreateUrl((const char *)data, XML_CHAR_ENCODING_NONE, 0, &out);
+
+    // Clean up if allocated
+    if (out) {
+        xmlFreeParserInputBuffer(out);
+    }
+
+    return 0;
 }
 
