@@ -155,7 +155,7 @@ fuzz-lint: lint$(EXEEXT) seed/lint.stamp
 	    corpus/lint seed/lint
 # xmlIO-uri fuzzer
 
-seed/xmlio_uri.stamp:
+seed/xmlIo_uri.stamp:
 	@mkdir -p corpus/xmlio_uri
 	echo -n "custom://test.xml" > seed/xmlio_uri/uri_seed_1
 	touch $@
