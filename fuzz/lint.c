@@ -121,6 +121,23 @@ LLVMFuzzerInitialize(int *argc ATTRIBUTE_UNUSED,
     return 0;
 }
 
+// Custom handler: simulate coverage of custom input logic
+int myMatch(const char *URI) {
+    return 1;  // Always matches
+}
+
+void *myOpen(const char *URI) {
+    return NULL;  // Simulate broken handler for coverage
+}
+
+int myRead(void *ctx, char *buf, int len) {
+    return -1;
+}
+
+int myClose(void *ctx) {
+    return 0;
+}
+
 int
 LLVMFuzzerTestOneInput(const char *data, size_t size) {
     char maxmemBuf[20];
@@ -130,6 +147,21 @@ LLVMFuzzerTestOneInput(const char *data, size_t size) {
     size_t ssize, docSize, i;
     unsigned uval;
     int ival;
+
+    //new logic to targeting xmlParserInputBufferUrl
+    static int initialized = 0;
+    if (!initialized) {
+        xmlRegisterInputCallbacks(myMatch, myOpen, myRead, myClose);
+        initialized = 1;
+    }
+
+    // Optionally try to trigger it directly (low cost)
+    if (size > 0 && data[size - 1] == '\0') {
+        xmlParserInputBufferPtr out = NULL;
+        xmlParserInputBufferCreateUrl((const char *)data, XML_CHAR_ENCODING_NONE, 0, &out);
+        if (out) xmlFreeParserInputBuffer(out);
+    }
+
 
     if (xmlMemUsed() != 0) {
         fprintf(stderr, "Undetected leak in previous iteration\n");

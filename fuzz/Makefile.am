@@ -141,7 +141,8 @@ fuzz-reader: reader$(EXEEXT) seed/reader.stamp
 seed/lint.stamp: genSeed$(EXEEXT)
 	@mkdir -p seed/lint
 	./genSeed$(EXEEXT) lint $(XML_SEED_CORPUS_SRC)
-	@touch seed/lint.stamp
+	@echo -n "custom://test.xml" > seed/lint/uri_seed_custom
+	@touch $@
 
 lint_SOURCES = lint.c fuzz.c ../xmllint.c ../shell.c
 lint_LDFLAGS = -fsanitize=fuzzer
@@ -156,10 +157,10 @@ fuzz-lint: lint$(EXEEXT) seed/lint.stamp
 
 # xmlIO-uri fuzzer
 
-seed/xmlIO-uri.stamp:
-	@mkdir -p seed/xmlIO-uri
-	@echo -n "custom://test.xml" > seed/xmlIO-uri/uri_seed_1
-	@touch $@
+#seed/xmlIO-uri.stamp:
+#	@mkdir -p seed/xmlIO-uri
+#	@echo -n "custom://test.xml" > seed/xmlIO-uri/uri_seed_1
+#	@touch $@
 
 #fuzz-xmlIO-uri: xmlIO-uri$(EXEEXT) seed/xmlIO-uri.stamp
 #	@mkdir -p corpus/xmlIO-uri
