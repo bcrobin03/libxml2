@@ -40,7 +40,7 @@ make clean-corpus
 make fuzz.o
 
 for fuzzer in \
-    api html lint reader regexp schema uri valid xinclude xml xpath xmlIO-uri
+    api html lint reader regexp schema uri valid xinclude xml xpath 
 do
     OBJS="$fuzzer.o"
     if [ "$fuzzer" = lint ]; then
