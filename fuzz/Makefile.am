@@ -160,6 +160,13 @@ seed/xmlIO-uri.stamp:
     echo -n "custom://test.xml" > seed/xmlIO-uri/uri_seed_1
     touch $@
 
+fuzz-xmlIO-uri: xmlIO-uri$(EXEEXT) seed/xmlIO-uri.stamp
+	@mkdir -p corpus/xmlIO-uri
+	./xmlIO-uri$(EXEEXT) \
+	    -dict=$(srcdir)/xml.dict \
+	    -max_len=$(XML_MAX_LEN) \
+	    $$XML_FUZZ_OPTIONS \
+	    corpus/xmlIO-uri seed/xmlIO-uri
 
 # API fuzzer
 
