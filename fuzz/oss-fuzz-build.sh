@@ -31,6 +31,7 @@ export V=1
     --without-debug \
     --without-http \
     --without-python \
+    --disable-dependency-tracking \
     $CONFIG
 make -j$(nproc)
 
